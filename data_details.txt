@@ -1,0 +1,42 @@
+
+Brief description of the included data files:
+
+mydate: 10344 x 1 vector of dates in Matlab numerical format
+        - any entry of this vector can be converted to a `normal’ date
+          using the function datestr()
+
+ret:    10344 x 3251 matrix with daily stock returns
+
+rf:     10344 x 1 vector with daily risk-free returns
+
+
+Both ret and rf are in percent. So if a stock price goes up from 100 to 110, the return is 10 and not 0.1.
+
+investDate: 360 x 1 vector with monthly investment dates (index set of mydate)
+            - the first date is investDate(1) = 2785 and corresponds to
+              datestr(mydate(2785)) = 08-Jan-1986
+            - the last date is investDate(360) = 10323 and corresponds to
+              datestr(mydate(10324)) = 02-Dec-2015
+
+
+topMV95: 360 x 1000 matrix that identifies the stocks in the investment universe
+         - topMV95(h,1:N) is the universe to be used for investing in N stocks
+           at investment date h
+         - specifically, it identifies the relevant columns of the matrix ret
+
+
+So at investment data h = 1,.., 360, you would do something like is for investing in N stocks and using a history of length T to estimate the covariance matrix:
+
+universe = topMV95(h,1:N)
+today = investDate(h)
+pastPeriod = (-T:-1)+today;
+pastRet = ret(pastPeriod,universe);
+
+Then use your function to estimate a covariance matrix on the data set pastRet. From the estimated covariance matrix, you then compute the vector of portfolio weights.
+
+The corresponding out-of-sample returns of the stocks in the universe are given by:
+
+investPeriod = today:(today+20)
+outRet = ret(investPeriod,universe)
+
+The vector of portfolio weights together with the data set outRet then determine your out-of-sample returns for the current investment month. Note that you should keep the number of shares, rather than the vector of portfolio weights, constant during the 21 days of the month. I attach a function retConstShare that should help with that.
