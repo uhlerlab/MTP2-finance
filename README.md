@@ -36,3 +36,7 @@ Note that if you use daily data but update only every month (that is, every 21 d
 As I said before, these are data used in Section 6 of the attached paper.
 
 There we used T = 1250 for the estimation of a covariance matrix, but that was for the dynamic DCC-NL model. Since you will be using static models instead (that is, models that assume i.i.d. data), you might want to use T = 250 or T = 500 instead for the estimation of a covariance matrix.
+
+# Matlab Instructions
+Add export PATH=$PATH:/Applications/MATLAB_R2018a.app/bin to your ~/.bash_profile (and make sure you can get matlab from your command line)
+Add data/ and sim_data/ folder under the matlab/ folder
