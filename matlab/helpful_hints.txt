@@ -1,3 +1,6 @@
+Add this to your ~/.bash_profile (or bash_rc): 
+export PATH=$PATH:/Applications/MATLAB_R2018a.app/bin
+
 matlab -nodisplay -nodesktop
 
 while in the folder (demo) that contains 'computeCov.m', 
@@ -5,8 +8,7 @@ while in the folder (demo) that contains 'computeCov.m',
 matlab -nodisplay -nodesktop -r "computecov 'testS.mat' 'testSout2.mat'"
 works! 
 
-
-
+Helpful stack overflow:
 https://stackoverflow.com/questions/6657005/matlab-running-an-m-file-from-command-line
 
 

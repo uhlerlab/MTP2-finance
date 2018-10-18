@@ -5,6 +5,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 matlab/data/*
+matlab/sim_data/*
 # C extensions
 *.so
 .DS_Store
