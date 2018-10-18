@@ -1,0 +1,15 @@
+matlab -nodisplay -nodesktop
+
+while in the folder (demo) that contains 'computeCov.m', 
+
+matlab -nodisplay -nodesktop -r "computecov 'testS.mat' 'testSout2.mat'"
+works! 
+
+
+
+https://stackoverflow.com/questions/6657005/matlab-running-an-m-file-from-command-line
+
+
+can chain together inputs and outputs for matlab functionality
+
+matlab -nodisplay -nodesktop -r "computecov 'testS.mat' 'testSout2.mat'; computecov 'testS.mat' 'testSout3.mat'; exit;"
