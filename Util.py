@@ -42,6 +42,36 @@ def matlab_command_wrapper(string):
 	os.system(string) #Have to make call within matlab folder, because that's where file is defined
 	os.chdir(ogcwd)
 
+def populate_cov_relax(folder, uid, pastRet, lamb):
+	sampleCov = np.cov(pastRet.T)
+	sampleCov -= lamb
+	p, _ = sampleCov.shape
+	sampleCov += np.eye(p) * lamb #to make sure that we're not subtracting from diag
+	mdict = {'S': sampleCov}
+	scipy.io.savemat(join("matlab", "data", folder, "{}.mat".format(uid)), mdict)
+
+def populate_relax_covs_from_samples(folder, uids, pastRets, lamb):
+	for u, r in zip(uids, pastRets):
+		populate_cov_relax(folder, u, r, lamb)
+	print("Done populating all relax covs")
+
+def kendall_cov(data):
+    df = pd.DataFrame(data)
+    kendall_corr_mat = df.corr(method='kendall').values
+    corr_mat = np.sin(0.5 * np.pi * kendall_corr_mat)
+    stdmat = np.diag(np.sqrt(np.diag(np.cov(data.T))))
+    return stdmat.dot(corr_mat).dot(stdmat)
+
+def populate_cov_kendall(folder, uid, pastRet):
+	sampleCov = kendall_cov(pastRet)
+	mdict = {'S': sampleCov}
+	scipy.io.savemat(join("matlab", "data", folder, "{}.mat".format(uid)), mdict)
+
+def populate_kendall_covs_from_samples(folder, uids, pastRets):
+	for u, r in zip(uids, pastRets):
+		populate_cov_kendall(folder, u, r)
+	print("Done populating all Kendall covs")
+
 def populate_cov(folder, uid, pastRet = None, sampleCov = None):
 	if pastRet is not None:
 		sampleCov = np.cov(pastRet.T)
@@ -49,11 +79,14 @@ def populate_cov(folder, uid, pastRet = None, sampleCov = None):
 	scipy.io.savemat(join("matlab", "data", folder, "{}.mat".format(uid)), mdict)
 
 def populate_covs(folder, uids, covs):
+	#populate covs in folder with the given uids and covs
+	#the covs are not calculated on the fly, they're already given
 	for u, c in zip(uids, covs):
 		populate_cov(folder, u, sampleCov = c)
 	print("Done populating all covs")
 
 def populate_covs_from_samples(folder, uids, pastRets):
+	#populate covs by calcuating them from the samples (pastRets)
 	for u, r in zip(uids, pastRets):
 		populate_cov(folder, u, pastRet = r)
 	print("Done populating all covs")
@@ -113,6 +146,12 @@ def cumulative_variance(rets):
 	for i in range(1, len(rets)):
 		vs.append(np.var(rets[:i]))
 	return vs
+
+def cumulative_annualized_std(rets):
+	stds = []
+	for i in range(1, len(rets)):
+		stds.append(100*np.sqrt(12)*np.std(rets[:i]))
+	return stds
 
 def load_OOS(folder, P = None):
 	if P:
@@ -265,6 +304,11 @@ def get_past_period(h, T, N, univ, tradeidx, ret):
 	pastPeriod = range(today-T, today)
 	pastRet = ret[pastPeriod][:, universe]
 	return pastRet
+
+def get_past_period_factor(h, T, tradeidx, FF):
+	today = tradeidx[h][0]
+	pastPeriod = range(today-T, today)
+	return FF[pastPeriod]
 
 def get_invest_period(h, P, N, univ, tradeidx, ret):
 	#P is the lookahead, in months

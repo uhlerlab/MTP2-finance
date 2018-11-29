@@ -1,3 +1,4 @@
+import numpy as np
 #Block to generate the matrices
 
 def assert_symm(mat):
