@@ -5,6 +5,16 @@ from os.path import join
 import scipy.io
 from multiprocessing import Pool
 import linear_shrinkage
+import factor_models
+from subprocess import Popen, PIPE
+
+def skip_weak(N, T):
+    if N == 1000:
+        return True
+    if N == 500 and T == 1260:
+        return True
+    return False
+
 ###
 #Nonsense for Matlab
 ###
@@ -56,11 +66,11 @@ def populate_relax_covs_from_samples(folder, uids, pastRets, lamb):
 	print("Done populating all relax covs")
 
 def kendall_cov(data):
-    df = pd.DataFrame(data)
-    kendall_corr_mat = df.corr(method='kendall').values
-    corr_mat = np.sin(0.5 * np.pi * kendall_corr_mat)
-    stdmat = np.diag(np.sqrt(np.diag(np.cov(data.T))))
-    return stdmat.dot(corr_mat).dot(stdmat)
+	df = pd.DataFrame(data)
+	kendall_corr_mat = df.corr(method='kendall').values
+	corr_mat = np.sin(0.5 * np.pi * kendall_corr_mat)
+	stdmat = np.diag(np.sqrt(np.diag(np.cov(data.T))))
+	return stdmat.dot(corr_mat).dot(stdmat)
 
 def populate_cov_kendall(folder, uid, pastRet):
 	sampleCov = kendall_cov(pastRet)
@@ -90,6 +100,38 @@ def populate_covs_from_samples(folder, uids, pastRets):
 	for u, r in zip(uids, pastRets):
 		populate_cov(folder, u, pastRet = r)
 	print("Done populating all covs")
+
+def save_AFM_out(data):
+	arr = data['arr']
+	data_folder = data['data_folder']
+	prs = data['pastRets']
+	pfs = data['pastFactors']
+
+	for u, pastRet, pastFac in zip(arr, prs, pfs):
+		est = factor_models.AFM1_LS(pastRet, pastFac)
+		mdict = {'Sigma': est}
+		scipy.io.savemat(join(data_folder, "AFM1LS_out_{}.mat".format(u)), mdict)
+
+def run_parallel_AFM(cores, folder, pastRets, uids, pastFactors):
+	data_folder = join("matlab", "data", folder)
+	arrs = np.array_split(np.array(uids), cores)
+	split_PRs = np.array_split(np.array(pastRets), cores)
+	split_PFs = np.array_split(np.array(pastFactors), cores)
+	datas = []
+
+	for arr, pr, pf in zip(arrs, split_PRs, split_PFs):
+		d = {}
+		d['arr'] = arr
+		d['data_folder'] = data_folder
+		d['pastRets'] = pr
+		d['pastFactors'] = pf
+		datas.append(d)
+
+	for d in datas:
+		save_AFM_out(d)
+		
+	# with Pool(cores) as p:
+	# 	p.map(save_AFM_out, datas)
 
 def save_LS_out(data):
 	arr = data['arr']
@@ -153,14 +195,49 @@ def cumulative_annualized_std(rets):
 		stds.append(100*np.sqrt(12)*np.std(rets[:i]))
 	return stds
 
-def load_OOS(folder, P = None):
-	if P:
-		MTP2 = np.load(join('matlab/data', folder, 'MTP2_OOS_rets_P_{}.npy'.format(P)))
-		LS = np.load(join('matlab/data', folder, 'LS_OOS_rets_P_{}.npy'.format(P)))
+def load_EWTQ_OOS(folder):
+	fname = join('matlab/data', folder, 'EWTQ_OOS_momentum_rets.npy')
+	return np.load(fname)
+
+def load_equiweight_OOS(folder):
+	fname = join('matlab/data', folder, 'equiweight_OOS_rets.npy')
+	return np.load(fname)
+
+def load_OOS(folder, P = None, AFM = False, momentum = False):
+	if momentum:
+		mom = "momentum_"
 	else:
-		MTP2 = np.load(join('matlab/data', folder, 'MTP2_OOS_rets.npy'))
-		LS = np.load(join('matlab/data', folder, 'LS_OOS_rets.npy'))
-	return MTP2, LS
+		mom = ""
+	if P:
+		MTP2_fname = join('matlab/data', folder, 'MTP2_OOS_{}rets_P_{}.npy'.format(mom, P))
+		if os.path.isfile(MTP2_fname):
+			MTP2 = np.load(MTP2_fname)
+		else:
+			MTP2 = np.zeros(360)
+		LS_fname = join('matlab/data', folder, 'LS_OOS_{}rets_P_{}.npy'.format(mom, P))
+		if os.path.isfile(LS_fname):
+			LS = np.load(LS_fname)
+		else:
+			LS = np.zeros(360)
+	else:
+		MTP2_fname = join('matlab/data', folder, 'MTP2_OOS_{}rets.npy'.format(mom))
+		if os.path.isfile(MTP2_fname):
+			MTP2 = np.load(MTP2_fname)
+		else:
+			MTP2 = np.zeros(360)
+		LS_fname = join('matlab/data', folder, 'LS_OOS_{}rets.npy'.format(mom))
+		if os.path.isfile(LS_fname):
+			LS = np.load(LS_fname)
+		else:
+			LS = np.zeros(360)
+		if AFM:
+			AFM_fname = join('matlab/data', folder, 'AFM1LS_OOS_{}rets.npy'.format(mom))
+			if os.path.isfile(AFM_fname):
+				AFM = np.load(AFM_fname)
+			else:
+				AFM = np.zeros(360)
+
+	return MTP2, LS, AFM
 
 def load_losses(folder, P = None):
 	if P:
@@ -213,6 +290,29 @@ def get_LS_OOS(folder, N, P, univ, tradeidx, ret):
 	np.save(join('matlab/data/', folder, 'LS_OOS_rets'), rets)
 	return rets
 
+def get_equiweight_OOS(folder, N, P, univ, tradeidx, ret):
+	rets = []
+	for h in range(len(univ)):
+		w = np.ones(N) / N
+		outRet = get_invest_period(h, P, N, univ, tradeidx, ret)
+		curret = retConstShare(outRet, w)
+		rets.append(curret)
+	np.save(join('matlab/data/', folder, 'equiweight_OOS_rets'), rets)
+	return rets
+
+def get_AFM_OOS(folder, N, P, univ, tradeidx, ret):
+	#assumes the uids are index into universe
+	rets = []
+	for h in range(len(univ)):
+		LS_cov = get_AFM_cov(folder, h)
+		w = optimal_weights(LS_cov)
+		outRet = get_invest_period(h, P, N, univ, tradeidx, ret)
+		curret = retConstShare(outRet, w)
+		rets.append(curret)
+
+	np.save(join('matlab/data/', folder, 'AFM1LS_OOS_rets'), rets)
+	return rets
+
 def get_MTP2_OOS_custom_univ(folder, P, subset, tradeidx, ret, P_in_name = False):
 	rets = []
 	losses = []
@@ -242,6 +342,44 @@ def get_MTP2_OOS_custom_univ(folder, P, subset, tradeidx, ret, P_in_name = False
 	np.save(join('matlab/data/', folder, losses_name), losses)
 	return rets, losses
 
+def get_momentum_OOS(folder, N, P, univ, tradeidx, ret, cov_func, method_name):
+	rets = []
+	for h in range(len(univ)):
+		cov = cov_func(folder, h)
+		m = get_momentum_signal(h, N, univ, tradeidx, ret)
+		b = np.mean(m)
+		w = optimal_weights_momentum(m, cov, b)
+		outRet = get_invest_period(h, P, N, univ, tradeidx, ret)
+		curret = retConstShare(outRet, w)
+		rets.append(curret)
+
+	np.save(join('matlab/data/', folder, '{}_OOS_momentum_rets'.format(method_name)), rets)
+	return rets
+
+def get_EWTQ_OOS(folder, N, P, univ, tradeidx, ret):
+	rets = []
+	for h in range(len(univ)):
+		m = get_momentum_signal(h, N, univ, tradeidx, ret)
+		perc = np.percentile(m, 80)
+		top = m >= perc
+		tot = int(sum(top))
+		w = top / tot
+		outRet = get_invest_period(h, P, N, univ, tradeidx, ret)
+		curret = retConstShare(outRet, w)
+		rets.append(curret)
+	np.save(join('matlab/data/', folder, 'EWTQ_OOS_momentum_rets'), rets)
+	return rets
+
+def get_MTP2_momentum_OOS(folder, N, P, univ, tradeidx, ret):
+	get_momentum_OOS(folder, N, P, univ, tradeidx, ret, get_MTP2_cov, 'MTP2')
+
+def get_AFM_momentum_OOS(folder, N, P, univ, tradeidx, ret):
+	get_momentum_OOS(folder, N, P, univ, tradeidx, ret, get_AFM_cov, 'AFM1LS')
+
+def get_LS_momentum_OOS(folder, N, P, univ, tradeidx, ret):
+	get_momentum_OOS(folder, N, P, univ, tradeidx, ret, get_LS_cov, 'LS')
+
+
 def get_MTP2_OOS(folder, N, P, univ, tradeidx, ret):
 	#assumes the uids are index into universe
 	rets = []
@@ -254,6 +392,10 @@ def get_MTP2_OOS(folder, N, P, univ, tradeidx, ret):
 
 	np.save(join('matlab/data/', folder, 'MTP2_OOS_rets'), rets)
 	return rets
+
+def get_AFM_cov(folder, uid):
+	data_folder = join('matlab/data', folder)
+	return scipy.io.loadmat(format_appro('AFM1LS_out_{}.mat'.format(uid), data_folder))['Sigma']
 
 def get_LS_cov(folder, uid):
 	data_folder = join('matlab/data', folder)
@@ -330,6 +472,18 @@ def get_invest_period_custom_univ(h, P, subset, tradeidx, ret):
 	outRet = ret[investPeriod][:, subset]
 	return outRet
 
+def get_momentum_period(h, N, univ, tradeidx, ret):
+	universe = univ[h,:N]
+	today = tradeidx[h][0]
+	investPeriod = range(today - 252, today - 21)
+	outRet = ret[investPeriod][:, universe]
+	return outRet
+
+def get_momentum_signal(h, N, univ, tradeidx, ret):
+	rets = get_momentum_period(h, N, univ, tradeidx, ret)
+	rets += 1.
+	return scipy.stats.gmean(rets)
+	
 ###
 # Utilities for dealing with covariance computation and OOS computations
 ###
@@ -402,6 +556,17 @@ def optimal_weights(cov):
 	denom = np.matmul(np.matmul(np.ones(n), prec), np.ones(n))
 	return np.matmul(prec, np.ones(n)) / denom
 
+def optimal_weights_momentum(m, sigma, b):
+	n = sigma.shape[0]
+	prec = np.linalg.inv(sigma)
+	A = np.matmul(np.matmul(np.ones(n), prec), np.ones(n))
+	B = np.matmul(np.matmul(np.ones(n), prec), np.ones(n) * b)
+	C = np.matmul(np.matmul(m, prec), m)
+	c_1 = (C - b*B) / (A*C - B**2)
+	c_2 = (b*A - B) / (A*C - B**2)
+	w = c_1 * np.matmul(prec, np.ones(n)) + c_2 * np.matmul(prec, m)
+	return w
+
 def loss(Sigma_hat, Sigma):
 	#up to a factor of N up front
 	K_hat = np.linalg.inv(Sigma_hat)
@@ -409,6 +574,43 @@ def loss(Sigma_hat, Sigma):
 	num = np.trace(K_hat.dot(Sigma).dot(K_hat))
 	denom = np.trace(K_hat)**2
 	return num/denom - 1./np.trace(K)
+
+def get_std(rets):
+	return get_IR(rets)[1]
+
+def get_IR(rets):        
+	avg = 100 * 12 * np.mean(rets)
+	std = 100 * np.sqrt(12)*float(np.std(rets))
+	if std == 0:
+		return 0, 0, 0
+	else:
+		return avg, std, avg/std
+
+def hypothesis_testing(rets1, rets2, folder, name1, name2, sharpe):
+	hyp_mat = np.vstack((rets1, rets2)).T
+	hyp_mat_name = "{}_vs_{}.npy".format(name1, name2)
+	in_file = join(os.getcwd(), 'matlab/data', folder, hyp_mat_name)
+	if sharpe:
+		method = 'sharpe'
+	else:
+		method = 'var'
+	out_file = join(os.getcwd(), 'matlab/data', folder, '{}_vs_{}_res_{}.csv'.format(name1, name2, method))
+	np.save(in_file, hyp_mat)
+	args = ['rscript', 'p_values.R', in_file, out_file]
+	if sharpe: 
+		args.append('sharpe')
+	p = Popen(args, stdout=PIPE)
+	output = p.stdout.read()
+	print(output)
+
+def read_hyp_results(folder, name1, name2, sharpe):
+	if sharpe:
+		method = 'sharpe'
+	else:
+		method = 'var'
+	out_file = join(os.getcwd(), 'matlab/data', folder, '{}_vs_{}_res_{}.csv'.format(name1, name2, method))
+	df = pd.read_csv(out_file)
+	return df
 #####################################################################
 
 #This is for back when we were worried about nans
@@ -417,7 +619,7 @@ def loss(Sigma_hat, Sigma):
 #new_universe = universe[nan_thres]
 #print("Number in new universe: {} out of {}".format(new_universe.shape[0], N))
 #pastRet = ret_nonan[pastPeriod][:, new_universe]
-  
+ 
 def cov_to_corr(cov):
 	cov_diag = np.diag(np.power(np.diag(cov), -0.5))
 	return cov_diag.dot(cov).dot(cov_diag)     

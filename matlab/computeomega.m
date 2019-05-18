@@ -1,4 +1,4 @@
-function []=computecov(arg1, arg2)
+function []=computeomega(arg1, arg2)
     addpath(genpath('./code'))
     
 %     tic()
@@ -12,12 +12,13 @@ function []=computecov(arg1, arg2)
 %     S = csvread('testSout.csv');
 %     toc()
     
-    [~, Sigma, ~] = blockdescent_omega(S);
+    [Omega, ~, ~] = blockdescent_omega(S);
 %     tic()
 %     csvwrite(arg2, Sigma); %Takes 0.03 seconds for 256x256
 %     toc()
     
 %    tic()
-    save(arg2, '-v7', 'Sigma'); %This is not that much faster than above, takes 0.02 seconds%
+    save(arg2, '-v7', 'Omega'); %This is not that much faster than above, takes 0.02 seconds%
 %    toc()
 end
+
