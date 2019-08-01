@@ -1,0 +1,16 @@
+library(nlshrink)
+library(RcppCNPy)
+
+#library(reticulate)
+#np <- import("numpy")
+#args = commandArgs(trailingOnly=TRUE)
+#ret <- np$load(args[1])
+
+X <- npyLoad("/Users/umaroy/Documents/meng/MTP2-finance/LS_NLS_in.npy")
+print("Loaded X")
+LS_cov <- linshrink_cov(X, 1)
+print("Finished with LS")
+npySave("/Users/umaroy/Documents/meng/MTP2-finance/LS_out.npy", LS_cov)
+NLS_cov <- nlshrink_cov(X, k=1)
+print("Finished with NLS")
+npySave("/Users/umaroy/Documents/meng/MTP2-finance/NLS_out.npy", NLS_cov)

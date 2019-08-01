@@ -1,0 +1,15 @@
+library(nlshrink)
+library(RcppCNPy)
+
+#library(reticulate)
+#np <- import("numpy")
+#args = commandArgs(trailingOnly=TRUE)
+#ret <- np$load(args[1])
+uid = commandArgs(trailingOnly=TRUE)
+inp = sprintf("/Users/umaroy/Documents/meng/MTP2-finance/LS_in_%s.npy", uid)
+X <- npyLoad(inp, dotranspose=FALSE)
+print("Loaded X")
+LS_cov <- linshrink_cov(X, 0)#ncol(X))
+
+out = sprintf("/Users/umaroy/Documents/meng/MTP2-finance/LS_out_%s.npy", uid)
+npySave(out, LS_cov)

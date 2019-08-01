@@ -248,6 +248,11 @@ def load_losses(folder, P = None):
 		LS = np.load(join('matlab/data', folder, 'LS_OOS_losses.npy'))
 	return MTP2, LS
 
+def evaluate_curret(pred_cov, outRet):
+    w = optimal_weights(pred_cov)
+    curret = retConstShare(outRet, w)
+    return curret    
+
 def get_LS_OOS_custom_univ(folder, P, subset, tradeidx, ret, P_in_name = False):
 	rets = []
 	losses = []
