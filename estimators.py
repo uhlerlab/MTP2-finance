@@ -32,9 +32,9 @@ def MTP2_cov_wrapper(cov):
         #make sure this waits for the above to finish?
         ans = scipy.io.loadmat(out_path)['Omega']
     finally:
+        os.chdir(og_dir)
         os.remove(inp_path)
         os.remove(out_path)
-        os.chdir(og_dir)
     return np.linalg.inv(ans)
 
 def glasso_wrapper(X):
