@@ -48,53 +48,59 @@ def glasso_wrapper(X):
 def tiger_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/tiger_in_{}.npy".format(uid), X)
+    np.save(os.path.join(os.getcwd(), "tiger_in_{}.npy".format(uid)), X)
     args = ['Rscript', 'rscripts/tiger.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    cov = np.load("/Users/umaroy/Documents/meng/MTP2-finance/tiger_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/tiger_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/tiger_out_{}.npy".format(uid))
+    cov = np.load(os.path.join(os.getcwd(), "tiger_out_{}.npy".format(uid)))
+    os.remove(os.path.join(os.getcwd(), "tiger_in_{}.npy".format(uid)))
+    os.remove(os.path.join(os.getcwd(), "tiger_out_{}.npy".format(uid)))
     return np.linalg.inv(cov)
 
 def POET_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/POET_in_{}.npy".format(uid), X)
+    in_name = os.path.join(os.getcwd(), "POET_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "POET_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/POET_script.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    cov = np.load("/Users/umaroy/Documents/meng/MTP2-finance/POET_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/POET_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/POET_out_{}.npy".format(uid))
+    cov = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
     return cov
 
 def POET_5_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/POET_in_{}.npy".format(uid), X)
+    in_name = os.path.join(os.getcwd(), "POET_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "POET_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/POET_script_5facs.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    cov = np.load("/Users/umaroy/Documents/meng/MTP2-finance/POET_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/POET_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/POET_out_{}.npy".format(uid))
+    cov = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
     return cov
 
 def NLS_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/NLS_in_{}.npy".format(uid), X)
+    in_name = os.path.join(os.getcwd(), "NLS_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "NLS_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/NLS.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    NLS = np.load("/Users/umaroy/Documents/meng/MTP2-finance/NLS_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/NLS_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/NLS_out_{}.npy".format(uid))
+    NLS = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
     return NLS
 
 def old_LS_wrapper(X, cov=None):
@@ -104,55 +110,63 @@ def old_LS_wrapper(X, cov=None):
 def LS_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/LS_in_{}.npy".format(uid), X)
+    in_name = os.path.join(os.getcwd(), "LS_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "LS_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/LS.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    LS = np.load("/Users/umaroy/Documents/meng/MTP2-finance/LS_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/LS_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/LS_out_{}.npy".format(uid))
+    LS = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
     return LS
 
 def LRPS_wrapper(X):
     X = X - np.mean(X,axis=0)
     uid = get_uuid()
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/lrps_in_{}.npy".format(uid), X)
+    in_name = os.path.join(os.getcwd(), "lrps_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "lrps_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/lrps.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    omega = np.load("/Users/umaroy/Documents/meng/MTP2-finance/lrps_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/lrps_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/lrps_out_{}.npy".format(uid))
+    omega = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
     return np.linalg.inv(omega)
 
 def CLIME_wrapper(X):
     X = X - np.mean(X,axis=0)
     uid = get_uuid()
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/clime_in_{}.npy".format(uid), X)
+    in_name = os.path.join(os.getcwd(), "clime_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "clime_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/clime.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    cov = np.load("/Users/umaroy/Documents/meng/MTP2-finance/clime_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/clime_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/clime_out_{}.npy".format(uid))
-    return np.linalg.inv(cov)
+    omega = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
+    return np.linalg.inv(omega)
 
 def CLIME_cov_wrapper(X, T):
     #T is the number of stocks
     assert X.shape[0] == X.shape[1] #to make sure it's a covariance matrix
     uid = get_uuid()
-    np.save("/Users/umaroy/Documents/meng/MTP2-finance/clime_cov_in_{}.npy".format(uid), X)
+    in_name = os.path.join(os.getcwd(), "clime_cov_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "clime_cov_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/clime_cov.R', str(uid), str(T)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
-    cov = np.load("/Users/umaroy/Documents/meng/MTP2-finance/clime_cov_out_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/clime_cov_in_{}.npy".format(uid))
-    os.remove("/Users/umaroy/Documents/meng/MTP2-finance/clime_cov_out_{}.npy".format(uid))
-    return np.linalg.inv(cov)
+    omega = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
+    return np.linalg.inv(omega)
 
 def get_AFM_estimator(num_factors, residual_method, tradeidx):
     assert num_factors in [1, 5]

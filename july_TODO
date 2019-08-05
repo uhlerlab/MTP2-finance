@@ -3,51 +3,18 @@ Paper todos:
 --include plots with lines (2 rows of 3 figures each)
 --describe that T is varied as a ratio of N/T
 --2.3.2 add sentence describing AFM-LS for shrinkage combining with eigenvalues (add in green)
+--glasso comment that it is a biased estimator, but this is how it is used out of the box
 
 Experimental TODOS:
---get server set-up with new matlab to run all the scripts to re-generate all the tables
+--implement check function for all wrappers, make scripts out of notebooks to run
+--get server set-up with new matlab/new storage to run all the scripts to re-generate all the tables
 --KT table for MTP2, CLIME showing doesn't make too much difference for the choices of N, T
 --re-generate the current tables in paper with glasso, CLIME, POET
 --regenerate line plots with all the methods
 
-********
 
-Notes for meeting
-
---the methods that we were thinking of adding were CLIME, LRPS, glasso and NLS
---of the above, CLIME is too slow, glasso does worse (so we include it), 
-NLS and LRPS so far give really weird/bad results (possible using the package incorrectly)
---using KT does not really change too much (tried it with N=100, T=1260) for MTP2
-we can have a table that shows negligible difference
-----seems irrelevant to use for NLS, LRPS, glasso hard to use w/ cross-validation, used with MTP2,
-weird to use with LS
-
-glasso: 
-NLS: leave out by now (email the dude maybe) -- some table with LS and NLS weird numbers, LRPS table 
-
---want to show that we have better sample complexity, which is clear
-
-**end result: 2 tables like in the current paper, only add column for glasso
-**and can have 1 extra table showing that KT doesn't matter too much: CLIME, MTP2 maybe POET
-
-also the tables we have are non-standard, because they always have tables 
-with all avg, sd, ir even though 1 of the columns are relevant. should we have those tables too?
-(But this seems kind of secondary)
-
-
-Implementation TODOs: 
-    --POET with LS on residual (if that is necesary)
-    --recreate infrastructure for making tables with new experiments
-    
-Computational TODOs: 
-    --run CLIME, POET, glasso to create entries in the table
-    --re-run entries in old table
-    --KT table: run CLIME with KT and MTP2 with KT for selection N,T
-    
-Questions:
-    --LRPS weird? 
-    --LS & NLS weird?
-    
+Notes:
+*******
 POET estimator: 
     --using method to estimate optimal value of K takes 360 seconds
     (gives K=1) for pastRets[0,1]
@@ -59,6 +26,3 @@ CLIME estimator:
     (but seems reasonable on the 1 instance I tried it)
     --with cross validation with 10 lambda, 3 folds takes 100 seconds
     --with using particular value of lambda takes 3-6 seconds
-
-TODO KT:
-    POET with sample covariance matrix (?)
