@@ -2,9 +2,11 @@ library(reticulate)
 library(clime)
 library(RcppCNPy)
 
+new_dir <- paste(getwd(), "/rscripts", sep="")
+setwd(new_dir)
+
 uid = commandArgs(trailingOnly=TRUE)
-#uid = "78489c41-d038-4871-84ab-8bfbb5bb1344"
-inp = sprintf("/Users/umaroy/Documents/meng/MTP2-finance/clime_in_%s.npy", uid)
+inp = sprintf("clime_in_%s.npy", uid)
 
 X <- npyLoad(inp, dotranspose=FALSE)
 print("Loaded X")
@@ -34,7 +36,7 @@ climeres <- clime(X,
                perturb = FALSE)
 res <- climeres$Omegalist[[1]]
 
-out = sprintf("/Users/umaroy/Documents/meng/MTP2-finance/clime_out_%s.npy", uid)
+out = sprintf("clime_out_%s.npy", uid)
 npySave(out, res)
 
 

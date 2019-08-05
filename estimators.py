@@ -48,21 +48,21 @@ def glasso_wrapper(X):
 def tiger_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    np.save(os.path.join(os.getcwd(), "tiger_in_{}.npy".format(uid)), X)
+    np.save(os.path.join(os.getcwd(), "rscripts", "tiger_in_{}.npy".format(uid)), X)
     args = ['Rscript', 'rscripts/tiger.R', str(uid)]
     p = Popen(args, stdout=PIPE)
     while p.poll() is None:
         print(p.stdout.readline())
     cov = np.load(os.path.join(os.getcwd(), "tiger_out_{}.npy".format(uid)))
-    os.remove(os.path.join(os.getcwd(), "tiger_in_{}.npy".format(uid)))
-    os.remove(os.path.join(os.getcwd(), "tiger_out_{}.npy".format(uid)))
+    os.remove(os.path.join(os.getcwd(), "rscripts", "tiger_in_{}.npy".format(uid)))
+    os.remove(os.path.join(os.getcwd(), "rscripts", "tiger_out_{}.npy".format(uid)))
     return np.linalg.inv(cov)
 
 def POET_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    in_name = os.path.join(os.getcwd(), "POET_in_{}.npy".format(uid))
-    out_name = os.path.join(os.getcwd(), "POET_out_{}.npy".format(uid))
+    in_name = os.path.join(os.getcwd(), "rscripts", "POET_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "POET_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/POET_script.R', str(uid)]
     p = Popen(args, stdout=PIPE)
@@ -76,8 +76,8 @@ def POET_wrapper(X):
 def POET_5_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    in_name = os.path.join(os.getcwd(), "POET_in_{}.npy".format(uid))
-    out_name = os.path.join(os.getcwd(), "POET_out_{}.npy".format(uid))
+    in_name = os.path.join(os.getcwd(), "rscripts", "POET_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "POET_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/POET_script_5facs.R', str(uid)]
     p = Popen(args, stdout=PIPE)
@@ -91,8 +91,8 @@ def POET_5_wrapper(X):
 def NLS_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    in_name = os.path.join(os.getcwd(), "NLS_in_{}.npy".format(uid))
-    out_name = os.path.join(os.getcwd(), "NLS_out_{}.npy".format(uid))
+    in_name = os.path.join(os.getcwd(), "rscripts", "NLS_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "NLS_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/NLS.R', str(uid)]
     p = Popen(args, stdout=PIPE)
@@ -110,8 +110,8 @@ def old_LS_wrapper(X, cov=None):
 def LS_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    in_name = os.path.join(os.getcwd(), "LS_in_{}.npy".format(uid))
-    out_name = os.path.join(os.getcwd(), "LS_out_{}.npy".format(uid))
+    in_name = os.path.join(os.getcwd(), "rscripts", "LS_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "LS_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/LS.R', str(uid)]
     p = Popen(args, stdout=PIPE)
@@ -125,8 +125,8 @@ def LS_wrapper(X):
 def LRPS_wrapper(X):
     X = X - np.mean(X,axis=0)
     uid = get_uuid()
-    in_name = os.path.join(os.getcwd(), "lrps_in_{}.npy".format(uid))
-    out_name = os.path.join(os.getcwd(), "lrps_out_{}.npy".format(uid))
+    in_name = os.path.join(os.getcwd(), "rscripts", "lrps_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "lrps_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/lrps.R', str(uid)]
     p = Popen(args, stdout=PIPE)
@@ -140,8 +140,8 @@ def LRPS_wrapper(X):
 def CLIME_wrapper(X):
     X = X - np.mean(X,axis=0)
     uid = get_uuid()
-    in_name = os.path.join(os.getcwd(), "clime_in_{}.npy".format(uid))
-    out_name = os.path.join(os.getcwd(), "clime_out_{}.npy".format(uid))
+    in_name = os.path.join(os.getcwd(), "rscripts", "clime_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "clime_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/clime.R', str(uid)]
     p = Popen(args, stdout=PIPE)
@@ -156,8 +156,8 @@ def CLIME_cov_wrapper(X, T):
     #T is the number of stocks
     assert X.shape[0] == X.shape[1] #to make sure it's a covariance matrix
     uid = get_uuid()
-    in_name = os.path.join(os.getcwd(), "clime_cov_in_{}.npy".format(uid))
-    out_name = os.path.join(os.getcwd(), "clime_cov_out_{}.npy".format(uid))
+    in_name = os.path.join(os.getcwd(), "rscripts", "clime_cov_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "clime_cov_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/clime_cov.R', str(uid), str(T)]
     p = Popen(args, stdout=PIPE)

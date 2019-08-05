@@ -2,8 +2,11 @@ library(LRpS)
 library(reticulate)
 library(RcppCNPy)
 
+new_dir <- paste(getwd(), "/rscripts", sep="")
+setwd(new_dir)
+
 uid = commandArgs(trailingOnly=TRUE)
-inp = sprintf("/Users/umaroy/Documents/meng/MTP2-finance/lrps_in_%s.npy", uid)
+inp = sprintf("lrps_in_%s.npy", uid)
 
 ret <- npyLoad(inp, dotranspose=FALSE)
 n <- NROW(ret) #sample size
@@ -30,6 +33,6 @@ S <- best.ft$fit$S
 L <- best.ft$fit$L
 Sigma.hat <- S + L
 
-out = sprintf("/Users/umaroy/Documents/meng/MTP2-finance/lrps_out_%s.npy", uid)
+out = sprintf("lrps_out_%s.npy", uid)
 npySave(out, Sigma.hat)
 print("Saved result")
