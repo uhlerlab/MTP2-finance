@@ -145,8 +145,14 @@ def CLIME_wrapper(X):
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/clime.R', str(uid)]
     p = Popen(args, stdout=PIPE)
+    output = []
     while p.poll() is None:
-        print(p.stdout.readline())
+        lin = p.stdout.readline()
+        output.append(lin)
+        print(lin)
+    output_str = [x.decode('utf-8') for x in output] 
+    if 'Error in solve.default(Sigma)' in ''.join(output_str):
+        return None
     omega = np.load(out_name)
     os.remove(in_name)
     os.remove(out_name)

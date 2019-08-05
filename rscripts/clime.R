@@ -1,13 +1,21 @@
+options(error = quote({
+  dump.frames(to.file=T, dumpto='last.dump')
+  load('last.dump.rda')
+  print(last.dump)
+  q()
+}))
+
 library(reticulate)
 library(clime)
 library(RcppCNPy)
-
 new_dir <- paste(getwd(), "/rscripts", sep="")
 setwd(new_dir)
 
 uid = commandArgs(trailingOnly=TRUE)
+#uid <- "a90a47ea-b831-4425-8bcd-6623edc7bdaa"
 inp = sprintf("clime_in_%s.npy", uid)
 
+#X <- npyLoad("/Users/umaroy/Documents/meng/MTP2-finance/rscripts/clime_in_a90a47ea-b831-4425-8bcd-6623edc7bdaa.npy")
 X <- npyLoad(inp, dotranspose=FALSE)
 print("Loaded X")
 
