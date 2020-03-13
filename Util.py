@@ -384,8 +384,9 @@ def get_AFM_momentum_OOS(folder, N, P, univ, tradeidx, ret):
 def get_LS_momentum_OOS(folder, N, P, univ, tradeidx, ret):
 	get_momentum_OOS(folder, N, P, univ, tradeidx, ret, get_LS_cov, 'LS')
 
-
+print('hi')
 def get_MTP2_OOS(folder, N, P, univ, tradeidx, ret):
+	print(os.getcwd())
 	#assumes the uids are index into universe
 	rets = []
 	for h in range(len(univ)):
@@ -580,10 +581,34 @@ def loss(Sigma_hat, Sigma):
 	denom = np.trace(K_hat)**2
 	return num/denom - 1./np.trace(K)
 
+def get_std_None_safe(rets, verbose=True):
+	if None in rets:
+		li = []
+		for x in rets:
+			if x != None:
+				li.append(x)
+		if verbose:
+			print("# of none null is:", len(li), "Out of:", len(rets))
+		return get_std(li)
+	else:
+		return get_std(rets)
+
+def get_IR_None_safe(rets, verbose=True):
+	if None in rets:
+		li = []
+		for x in rets:
+			if x != None:
+				li.append(x)
+		if verbose:
+			print("# of none null is:", len(li), "Out of:", len(rets))
+		return get_IR(li)[2]
+	else:
+		return get_IR(rets)[2]
+
 def get_std(rets):
 	return get_IR(rets)[1]
 
-def get_IR(rets):        
+def get_IR(rets):   
 	avg = 100 * 12 * np.mean(rets)
 	std = 100 * np.sqrt(12)*float(np.std(rets))
 	if std == 0:
