@@ -32,9 +32,9 @@ def MTP2_cov_wrapper(cov):
         #make sure this waits for the above to finish?
         ans = scipy.io.loadmat(out_path)['Omega']
     finally:
-        os.chdir(og_dir)
         os.remove(inp_path)
         os.remove(out_path)
+        os.chdir(og_dir)
     return np.linalg.inv(ans)
 
 def glasso_wrapper(X):
@@ -158,8 +158,9 @@ def CLIME_wrapper(X):
     os.remove(out_name)
     return np.linalg.inv(omega)
 
-def CLIME_cov_wrapper(X, T):
+def CLIME_cov_wrapper(cov, T):
     #T is the number of stocks
+    X = cov
     assert X.shape[0] == X.shape[1] #to make sure it's a covariance matrix
     uid = get_uuid()
     in_name = os.path.join(os.getcwd(), "rscripts", "clime_cov_in_{}.npy".format(uid))
@@ -167,8 +168,14 @@ def CLIME_cov_wrapper(X, T):
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/clime_cov.R', str(uid), str(T)]
     p = Popen(args, stdout=PIPE)
+    output = []
     while p.poll() is None:
-        print(p.stdout.readline())
+        lin = p.stdout.readline()
+        output.append(lin)
+        print(lin)
+    output_str = [x.decode('utf-8') for x in output] 
+    if 'Error in solve.default(Sigma)' in ''.join(output_str):
+        return None
     omega = np.load(out_name)
     os.remove(in_name)
     os.remove(out_name)
