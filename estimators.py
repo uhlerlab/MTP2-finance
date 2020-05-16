@@ -103,10 +103,6 @@ def NLS_wrapper(X):
     os.remove(out_name)
     return NLS
 
-def old_LS_wrapper(X, cov=None):
-    from linear_shrinkage import estimator
-    return estimator(X)
-
 def LS_wrapper(X):
     uid = get_uuid()
     X = X - np.mean(X, axis = 0)

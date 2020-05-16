@@ -1,42 +1,25 @@
 # MTP2-finance
-MTP2 for covariance estimation in financial data
 
-# Setup Instructions
+MTP2 for covariance estimation in financial data.
+
+# Data instructions
 
 Create folder 'data/' and download data from here: https://www.dropbox.com/sh/zj7lxs25hsn2osi/AACx0aoUATK53eYvNCrNsDR0a?dl=0
-data/ contains data_details.txt, which has a description of the various different csvs and how they're relevant.
+The file `data_details.txt` has a description of the various different csvs and how they're relevant.
 
-# Description
+# Files
 
-The prelim.ipynb contains the preliminary work to load in the data and do some preliminary analysis (to try to replicate the 1/N portfolio).
+## Estimators
 
-## Data information
+`estimators.py` contains the code for the various covariance estimators that we benchmark in our paper. 
 
-* T is the number of days we use to estimate our covariance matrix
+## Utilities
 
-# Notes from Wolf
+`Util.py` is used for various utility functions, such as reading in the data, calculating relevant metrics, etc.
 
-Original data is here: https://www.dropbox.com/s/fsyepfq3o9g4anm/Caroline.mat?dl=0 (converted to .csv for ease of use with Python)
+## Sample Usage
 
-## Suggestions for relevant portfolios (from email)
+The iPython notebook `Generate Portfolios.ipynb` gives a example walk-through of how one would use an covariance estimator on the relevant data to calculate a portfolio of returns in the desired out of sample period.
 
-Enclosed is a working paper with some relevant portfolios. I would suggest you do an analysis similar to Table 1 on page 15 but using the following portfolios only:
-* 1/N: as described in the paper
-* Lin: like NL in the paper but use the linear shrinkage estimator Ledoit and Wolf (2004, JMVA)
-* MTP: like NL in the paper, but use your estimator of the covariance matrix — or the shrinkage estimator where your estimator is the target
-* AFM1-LIN: like AMF1-NL in the paper, but use the linear shrinkage estimator on the residuals
-* AFM1-MTP: like AMF1-NL in the paper, but use your estimator of the covariance matrix — or the shrinkage estimator where your estimator is the target — on the residuals
-
-## Explanation of non-constant weights on portfolio for OOS testing: 
-
-Note that if you use daily data but update only every month (that is, every 21 days), then you should keep number of shares fixed during that month instead of the vector of portfolio weights, since the latter approach would incur daily trading due to the different developments of stock prices from day to day.
-
-## Further explanation from email
-
-As I said before, these are data used in Section 6 of the attached paper.
-
-There we used T = 1250 for the estimation of a covariance matrix, but that was for the dynamic DCC-NL model. Since you will be using static models instead (that is, models that assume i.i.d. data), you might want to use T = 250 or T = 500 instead for the estimation of a covariance matrix.
-
-# Matlab Instructions
-Add export PATH=$PATH:/Applications/MATLAB_R2018a.app/bin to your ~/.bash_profile (and make sure you can get matlab from your command line)
-Add data/ and sim_data/ folder under the matlab/ folder
+## Matlab Instructions
+Note that the MTP2 estimator requires matlab installed on your machine. You need to be able to run `matlab` from the command line, as that is how the estimator is called. To do this, you may need to add `export PATH=$PATH:/Applications/MATLAB_R2018a.app/bin` (with whichever version of `matlab` you have) to your `~/.bash_profile`. Verify the `matlab` interpreter comes up when you type `matlab` into your command line.
