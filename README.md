@@ -4,7 +4,7 @@ MTP2 for covariance estimation in financial data.
 
 # Data instructions
 
-Create folder 'data/' and download data from here: https://www.dropbox.com/sh/zj7lxs25hsn2osi/AACx0aoUATK53eYvNCrNsDR0a?dl=0
+Create folder 'data/' and download data from here: https://drive.google.com/file/d/1smSlLg8K7RAvWm-EEDukHLxvaGmxnhqy/view?usp=sharing
 The file `data_details.txt` has a description of the various different csvs and how they're relevant.
 
 # Files
