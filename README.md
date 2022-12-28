@@ -23,3 +23,9 @@ The iPython notebook `Generate Portfolios.ipynb` gives a example walk-through of
 
 ## Matlab Instructions
 Note that the MTP2 estimator requires matlab installed on your machine. You need to be able to run `matlab` from the command line, as that is how the estimator is called. To do this, you may need to add `export PATH=$PATH:/Applications/MATLAB_R2018a.app/bin` (with whichever version of `matlab` you have) to your `~/.bash_profile`. Verify the `matlab` interpreter comes up when you type `matlab` into your command line.
+
+# References
+
+* Raj Agrawal, Uma Roy, Caroline Uhler,
+[Covariance Matrix Estimation under Total Positivity for Portfolio Selection](https://doi.org/10.1093/jjfinec/nbaa018),
+Journal of Financial Econometrics, Volume 20, Issue 2, Spring 2022, Pages 367–389.
